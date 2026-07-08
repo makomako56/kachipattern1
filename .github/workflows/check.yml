@@ -1,0 +1,28 @@
+name: kachipattern1
+ 
+on:
+  schedule:
+    # 毎週月〜金 22:10 UTC = 火〜土 朝7:10 JST (日足確定後)
+    - cron: "10 22 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "test = LINE接続テスト / check = 通常判定"
+        default: "check"
+ 
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run kachipattern1 check
+        env:
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+        run: |
+          if [ "${{ github.event.inputs.mode }}" = "test" ]; then
+            python3 kachipattern1_check.py --test
+          else
+            python3 kachipattern1_check.py
+          fi
